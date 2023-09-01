@@ -1,0 +1,3 @@
+logs/*.log
+.env
+docker-compose.yml
