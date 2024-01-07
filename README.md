@@ -24,7 +24,7 @@ This script was developed as a solution to repurpose the star ratings in Navidro
 You can easily run the script using a pre-built public Docker image. This method is straightforward and does not require building the Docker image locally. You can use the following Docker command and replace the environment variable values with your own:
 
 ```console
-docker run \
+docker run -t \
   -e NAV_BASE_URL=your_navidrome_server_url \
   -e NAV_USER=your_navidrome_username \
   -e NAV_PASS=your_navidrome_password \
@@ -32,6 +32,8 @@ docker run \
   -e SPOTIFY_CLIENT_SECRET=your_spotify_client_secret \
   krestaino/sptnr:latest
 ```
+
+**Note**: The `-t` flag is used to allocate a pseudo-terminal which assists in displaying colored and bold text in the terminal output, which this script uses.
 
 ### Using Docker Compose
 
