@@ -137,7 +137,7 @@ The script supports various options for flexible usage. Below are examples of ho
 
 3. **Using Docker Run**:
    ```console
-   docker run [environment variables] krestaino/sptnr:latest [options]
+   docker run -t [environment variables] krestaino/sptnr:latest [options]
    ```
 
 ## Examples
@@ -147,27 +147,27 @@ The script supports various options for flexible usage. Below are examples of ho
 
   - Python: `python sptnr.py -p`
   - Docker Compose: `docker-compose run sptnr -p`
-  - Docker Run: `docker run [env vars] krestaino/sptnr:latest -p`
+  - Docker Run: `docker run -t [env vars] krestaino/sptnr:latest -p`
 
 - **Process Specific Artist**:
   Process only one artist by specifying their ID.
 
   - Python: `python sptnr.py -a artist_id`
   - Docker Compose: `docker-compose run sptnr -a artist_id`
-  - Docker Run: `docker run [env vars] krestaino/sptnr:latest -a artist_id`
+  - Docker Run: `docker run -t [env vars] krestaino/sptnr:latest -a artist_id`
 
 - **Process Specific Albums**:
   Process multiple specific albums by specifying their IDs.
 
   - Python: `python sptnr.py -b album_id1 -b album_id2`
   - Docker Compose: `docker-compose run sptnr -b album_id1 -b album_id2`
-  - Docker Run: `docker run [env vars] krestaino/sptnr:latest -b album_id1 -b album_id2`
+  - Docker Run: `docker run -t [env vars] krestaino/sptnr:latest -b album_id1 -b album_id2`
 
 - **Process Range of Artists**:
   Process artists starting from a certain index with a limit.
   - Python: `python sptnr.py -s 10 -l 5`
   - Docker Compose: `docker-compose run sptnr -s 10 -l 5`
-  - Docker Run: `docker run [env vars] krestaino/sptnr:latest -s 10 -l 5`
+  - Docker Run: `docker run -t [env vars] krestaino/sptnr:latest -s 10 -l 5`
 
 ## Resuming Interrupted Sessions
 
@@ -181,7 +181,7 @@ Example command to continue from a specific point:
 
 - Python: `python sptnr.py -s INDEX`
 - Docker Compose: `docker-compose run sptnr -s INDEX`
-- Docker Run: `docker run [env vars] krestaino/sptnr:latest -s INDEX`
+- Docker Run: `docker run -t [env vars] krestaino/sptnr:latest -s INDEX`
 
 _Note: Replace `[env vars]` with the required environment variable arguments and `INDEX` with the specific index number from your log file._
 
