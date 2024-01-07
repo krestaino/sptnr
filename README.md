@@ -185,14 +185,14 @@ Example command to continue from a specific point:
 
 _Note: Replace `[env vars]` with the required environment variable arguments and `INDEX` with the specific index number from your log file._
 
-## Note on Using `docker-compose run`
+## Managing Docker Containers
 
-In this project, `docker-compose run` is used instead of `docker-compose up`. This choice allows for greater flexibility in passing command-line options directly to the script, essential for its varied operational modes.
+In this project, `docker-compose run` is used instead of `docker-compose up`. This choice allows for greater flexibility in passing command-line options directly to the script, which is essential for its varied operational modes. It's important to understand that `docker-compose run` and `docker run` create a new container each time they're executed. If you frequently run the script, you might accumulate a number of these containers. To manage this, the following method can be used to remove stopped Docker containers from your system.
 
-It's important to understand that `docker-compose run` creates a new container each time it's executed. If you're frequently running the script, you might accumulate a number of these containers. To manage this, you can periodically clean up these containers using the following Docker command. This command is tailored to remove only the containers created by this project:
+**Important Note**: This command removes **all** stopped containers on your system, not just the ones related to this script. Please ensure that you do not have any other stopped containers that you want to keep before running this command. You can check your stopped containers using `docker ps -a` to ensure that removing them won't affect your other Docker projects or setups.
 
 ```console
-docker container prune --filter "label=com.docker.compose.project=sptnr"
+docker container prune
 ```
 
 ## Mapping Spotify Popularity to Navidrome Ratings
