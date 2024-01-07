@@ -2,7 +2,23 @@
 
 This script was developed as a solution to repurpose the star ratings in Navidrome, aligning them with Spotify's track popularity. As a Navidrome user who utilizes the 'favorite' feature instead of star ratings, I wanted to give new life and utility to the unused rating system. By syncing Spotify popularity data with Navidrome's ratings, the script provides a quick way to identify popular tracks. This becomes particularly useful when frequently adding new albums and artists to the Navidrome server, especially those you're not familiar with.
 
-![Screenshot of script and phone](.github/screenshot.png)
+![Screenshot of script and phone](https://i.imgur.com/7NhSQFM.png)
+
+## Table of Contents
+
+1. [Features](#features)
+2. [Requirements](#requirements)
+3. [Quick Start](#quick-start)
+4. [Using Docker Compose](#using-docker-compose)
+5. [Running Natively or Building Locally](#running-natively-or-building-locally)
+6. [Usage](#usage)
+7. [Examples](#examples)
+8. [Resuming Interrupted Sessions](#resuming-interrupted-sessions)
+9. [Managing Docker Containers](#managing-docker-containers)
+10. [Mapping Spotify Popularity to Navidrome Ratings](#mapping-spotify-popularity-to-navidrome-ratings)
+11. [Estimated Processing Times](#estimated-processing-times)
+12. [Importance of Accurate Metadata for Track Lookup](#importance-of-accurate-metadata-for-track-lookup)
+13. [Logs](#logs)
 
 ## Features
 
@@ -237,4 +253,21 @@ To give you an idea of the matching accuracy you can expect, here are some stati
 
 ## Logs
 
-Logs are stored in the `logs` directory. Each execution creates a new log file with a timestamp.
+Logs are stored in the `logs` directory, and each script execution creates a new log file marked with a timestamp. Since these logs are retained indefinitely, you should manually delete old logs if they are no longer needed.
+
+### Log Format
+
+The script logs its actions in a straightforward format, using `p:49 → r:2` to summarize operations:
+
+- `p:49` indicates the Spotify popularity score, where `49` is the specific score.
+- `→` symbolizes the mapping performed by the script.
+- `r:2` shows the Navidrome rating assigned based on the Spotify score.
+
+### Terminal Output Colors
+
+In the terminal, certain lines are color-coded for quick identification:
+
+- **Red**: Denotes tracks not matched with Spotify's data. In the logs, these are shown with `??` for popularity scores.
+- **Green**: Indicates successful matches and processing of tracks.
+
+These colors are exclusive to the terminal output for visual clarity and are not included in the log files to facilitate easier file parsing.
