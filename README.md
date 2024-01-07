@@ -206,6 +206,35 @@ The script translates Spotify's popularity metric, which ranges from 0 to 100, i
 - **67 to 83**: Mapped to 4 stars (Very popular)
 - **84 to 100**: Mapped to 5 stars (Extremely popular)
 
+## Estimated Processing Times
+
+The script's processing time can vary based on several factors, including network speed and server response times. However, based on data from my own usage, I can provide a rough estimate of how long the script might take for different library sizes. The following table gives an approximate duration for processing libraries of various sizes:
+
+| Library Size (Number of Tracks) | Estimated Processing Time |
+| ------------------------------- | ------------------------- |
+| 1,000                           | 0h 7m 36s                 |
+| 5,000                           | 0h 38m 4s                 |
+| 10,000                          | 1h 16m 8s                 |
+| 50,000                          | 6h 20m 43s                |
+| 100,000                         | 12h 41m 27s               |
+
+These estimates are based on the script's performance with my library of 6,481 tracks, which took approximately 49 minutes and 21 seconds to process. Please note that these times are approximate and actual processing times may vary.
+
+## Importance of Accurate Metadata for Track Lookup
+
+The effectiveness of this script heavily relies on the accuracy of the artist, album, and track titles in your music library. For Spotify to successfully recognize and match songs, these metadata details need to be precise.
+
+I personally recommend using **MusicBrainz** to tag your music library. MusicBrainz is a comprehensive music database that provides reliable and standardized music metadata, which significantly enhances the accuracy of track matching with Spotify.
+
+However, it's important to acknowledge that even with a perfectly tagged MusicBrainz library, discrepancies can still occur between Spotify and MusicBrainz data. This may result in the script missing some songs during the matching process.
+
+To give you an idea of the matching accuracy you can expect, here are some statistics from my own library, which is tagged using MusicBrainz:
+
+- **Total Tracks**: 6,481
+- **Tracks Found on Spotify**: 6,390
+- **Tracks Not Found**: 91
+- **Match Percentage**: 98.6%
+
 ## Logs
 
 Logs are stored in the `logs` directory. Each execution creates a new log file with a timestamp.
