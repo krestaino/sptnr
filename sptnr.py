@@ -1,3 +1,6 @@
+with open('VERSION', 'r') as file:
+    __version__ = file.read().strip()
+
 import argparse
 import base64
 import json
