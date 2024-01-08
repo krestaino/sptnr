@@ -261,6 +261,15 @@ def process_track(track_id, artist_name, album, track_name):
         )
         found_track = len(spotify_data.get("tracks", {}).get("items", [])) > 0
 
+    if not found_track:
+        # Tertiary Search (replace 'Part' with 'Pt.')
+        modified_track_name = track_name.replace("Part", "Pt.")
+        encoded_modified_track_name = url_encode(modified_track_name)
+        spotify_data = search_spotify(
+            f"{encoded_modified_track_name}%20artist:{encoded_artist_name}"
+        )
+        found_track = len(spotify_data.get("tracks", {}).get("items", []))
+
     if found_track:
         popularity = spotify_data["tracks"]["items"][0].get("popularity", 0)
         rating = get_rating_from_popularity(popularity)
