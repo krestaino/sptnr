@@ -35,6 +35,8 @@ This script was developed as a solution to repurpose the star ratings in Navidro
 - A Spotify Developer account with an API key ([Get your Spotify API key here](https://developer.spotify.com/dashboard/create))
 - Access to a Navidrome server
 
+**Compatibility Note**: While this script was built with Navidrome in mind, it should theoretically work on any Subsonic server. If you successfully use it with other Subsonic servers, please open an issue to let me know, so I can document it and assist others.
+
 ## Quick Start
 
 You can easily run the script using a pre-built public Docker image. This method is straightforward and does not require building the Docker image locally. You can use the following Docker command and replace the environment variable values with your own:
