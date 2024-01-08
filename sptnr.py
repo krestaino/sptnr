@@ -1,4 +1,4 @@
-with open('VERSION', 'r') as file:
+with open("VERSION", "r") as file:
     __version__ = file.read().strip()
 
 import argparse
@@ -30,28 +30,7 @@ NAV_PASS = os.getenv("NAV_PASS")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
-# Setup logs
-LOG_DIR = "logs"
-if not os.path.exists(LOG_DIR):
-    os.makedirs(LOG_DIR)
-
-LOGFILE = os.path.join(LOG_DIR, f"spotify-popularity_{int(time.time())}.log")
-
-# Auth
-HEX_ENCODED_PASS = NAV_PASS.encode().hex()
-TOKEN_AUTH = base64.b64encode(
-    f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}".encode()
-).decode()
-TOKEN_URL = "https://accounts.spotify.com/api/token"
-response = requests.post(
-    TOKEN_URL,
-    headers={"Authorization": f"Basic {TOKEN_AUTH}"},
-    data={"grant_type": "client_credentials"},
-)
-SPOTIFY_TOKEN = json.loads(response.text)["access_token"]
-
-init(autoreset=True)
-
+# Colors
 LIGHT_PURPLE = Fore.MAGENTA + Style.BRIGHT
 LIGHT_GREEN = Fore.GREEN + Style.BRIGHT
 LIGHT_RED = Fore.RED + Style.BRIGHT
@@ -61,22 +40,14 @@ LIGHT_YELLOW = Fore.YELLOW + Style.BRIGHT
 BOLD = Style.BRIGHT
 RESET = Style.RESET_ALL
 
-# Default flags
-PREVIEW = 0
-START = 0
-LIMIT = 0
-ARTIST_IDs = []
-ALBUM_IDs = []
+# Setup logs
+LOG_DIR = "logs"
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
 
-# Variables
-ARTISTS_PROCESSED = 0
-TOTAL_TRACKS = 0
-FOUND_AND_UPDATED = 0
-NOT_FOUND = 0
-UNMATCHED_TRACKS = []
+LOGFILE = os.path.join(LOG_DIR, f"spotify-popularity_{int(time.time())}.log")
 
 
-# Setup logging
 class NoColorFormatter(logging.Formatter):
     ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 
@@ -94,6 +65,44 @@ logging.basicConfig(
 file_handler = logging.FileHandler(LOGFILE, "a")
 file_handler.setFormatter(NoColorFormatter("[%(asctime)s] %(message)s"))
 logging.getLogger().addHandler(file_handler)
+
+# Auth
+HEX_ENCODED_PASS = NAV_PASS.encode().hex()
+TOKEN_AUTH = base64.b64encode(
+    f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_CLIENT_SECRET}".encode()
+).decode()
+TOKEN_URL = "https://accounts.spotify.com/api/token"
+response = requests.post(
+    TOKEN_URL,
+    headers={"Authorization": f"Basic {TOKEN_AUTH}"},
+    data={"grant_type": "client_credentials"},
+)
+
+if response.status_code != 200:
+    error_info = response.json()  # Assuming the error response is in JSON format
+    error_description = error_info.get("error_description", "Unknown error")
+    logging.error(
+        f"{LIGHT_RED}Spotify Authentication Error: {error_description}{RESET}"
+    )
+    sys.exit(1)
+
+SPOTIFY_TOKEN = response.json()["access_token"]
+
+init(autoreset=True)
+
+# Default flags
+PREVIEW = 0
+START = 0
+LIMIT = 0
+ARTIST_IDs = []
+ALBUM_IDs = []
+
+# Variables
+ARTISTS_PROCESSED = 0
+TOTAL_TRACKS = 0
+FOUND_AND_UPDATED = 0
+NOT_FOUND = 0
+UNMATCHED_TRACKS = []
 
 # Parse arguments
 description_text = "process command-line flags for sync"
@@ -159,6 +168,20 @@ if not args.preview:
     )
 
 
+def validate_url(url):
+    if not re.match(r"https?://", url):
+        logging.error(
+            f"{LIGHT_RED}Config Error: URL must start with 'http://' or 'https://'.{RESET}"
+        )
+        return False
+    if url.endswith("/"):
+        logging.error(
+            f"{LIGHT_RED}Config Error: URL must not end with a trailing slash.{RESET}"
+        )
+        return False
+    return True
+
+
 def url_encode(string):
     return urllib.parse.quote_plus(string)
 
@@ -187,24 +210,24 @@ def process_track(track_id, artist_name, album, track_name):
         try:
             response = requests.get(spotify_url, headers=headers)
         except requests.exceptions.ConnectionError:
-            logging.error(f"{LIGHT_RED}Error: Unable to reach server.{RESET}")
+            logging.error(f"{LIGHT_RED}Spotify Error: Unable to reach server.{RESET}")
             sys.exit(1)
 
         if response.status_code != 200:
             if response.status_code == 429:
                 logging.error(
-                    f"{LIGHT_RED}Error {response.status_code}: Retry after {BOLD}{response.headers.get('Retry-After', 'some time')}s{RESET}"
+                    f"{LIGHT_RED}Spotify Error {response.status_code}: Retry after {BOLD}{response.headers.get('Retry-After', 'some time')}s{RESET}"
                 )
             else:
                 logging.error(
-                    f"{LIGHT_RED}Error {response.status_code}: {response.text}{RESET}"
+                    f"{LIGHT_RED}Spotify Error {response.status_code}: {response.text}{RESET}"
                 )
             sys.exit(1)
         try:
             return response.json()
         except ValueError as e:
             logging.error(
-                f"{LIGHT_RED}Error decoding JSON from Spotify API: {e}{RESET}"
+                f"{LIGHT_RED}Spotify Error: Error decoding JSON from Spotify API: {e}{RESET}"
             )
             sys.exit(1)
 
@@ -285,9 +308,47 @@ def process_artist(artist_id):
 
 
 def fetch_data(url):
-    response = requests.get(url)
-    return json.loads(response.text)["subsonic-response"]
+    try:
+        response = requests.get(url)
+        response_data = json.loads(response.text)
 
+        if "subsonic-response" not in response_data:
+            logging.error(
+                f"{LIGHT_RED}Unexpected response format from Navidrome.{RESET}"
+            )
+            sys.exit(1)
+
+        nav_response = response_data["subsonic-response"]
+
+        if "error" in nav_response:
+            error_message = nav_response["error"].get("message", "Unknown error")
+            logging.error(f"{LIGHT_RED}Navidrome Error: {error_message}{RESET}")
+            sys.exit(1)
+
+        return nav_response
+
+    except requests.exceptions.ConnectionError:
+        logging.error(
+            f"{LIGHT_RED}Connection Error: Failed to connect to the provided URL. Please check if the URL is correct and the server is reachable.{RESET}"
+        )
+        sys.exit(1)
+    except requests.exceptions.RequestException as e:
+        logging.error(
+            f"{LIGHT_RED}Connection Error: An error occurred while trying to connect to Navidrome: {e}{RESET}"
+        )
+        sys.exit(1)
+    except json.JSONDecodeError:
+        logging.error(
+            f"{LIGHT_RED}JSON Parsing Error: Failed to parse JSON response from Navidrome. Please check if the provided URL is a valid Navidrome server.{RESET}"
+        )
+        sys.exit(1)
+
+
+try:
+    validate_url(NAV_BASE_URL)
+except ValueError as e:
+    logging.error(f"{LIGHT_RED}{e}{RESET}")
+    sys.exit(1)
 
 if ARTIST_IDs:
     for ARTIST_ID in ARTIST_IDs:
