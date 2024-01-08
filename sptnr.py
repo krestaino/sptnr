@@ -143,12 +143,19 @@ parser.add_argument(
     help="limit to processing [NUM] artists from the start index",
 )
 
+parser.add_argument(
+    "-v", "--version", action="version", version=f"%(prog)s {__version__}"
+)
+
+
 args = parser.parse_args()
 
 ARTIST_IDs = args.artist if args.artist else []
 ALBUM_IDs = args.album if args.album else []
 START = args.start
 LIMIT = args.limit
+
+logging.info(f"{BOLD}Version:{RESET} {LIGHT_YELLOW}sptnr v{__version__}{RESET}")
 
 if args.preview:
     logging.info(f"{LIGHT_YELLOW}Preview mode, no changes will be made.{RESET}")
