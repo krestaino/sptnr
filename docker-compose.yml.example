@@ -15,5 +15,9 @@ services:
       - NAV_PASS=your_navidrome_password
       - SPOTIFY_CLIENT_ID=your_spotify_client_id
       - SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+      - WEB_API_KEY=changeme
     volumes:
-      - ./logs:/usr/src/app/logs
+      - ./data:/usr/src/app/data
+    ports:
+      - "3333:3333"
+    command: web_server.py

@@ -1,3 +1,4 @@
-logs/*.log
+data/
 .env
 docker-compose.yml
+__pycache__

@@ -41,7 +41,7 @@ BOLD = Style.BRIGHT
 RESET = Style.RESET_ALL
 
 # Setup logs
-LOG_DIR = "logs"
+LOG_DIR = "data/logs"
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
@@ -103,6 +103,9 @@ TOTAL_TRACKS = 0
 FOUND_AND_UPDATED = 0
 NOT_FOUND = 0
 UNMATCHED_TRACKS = []
+PROCESSED_ALBUMS_FILE = "data/processed_albums.txt"
+
+processed_albums = set()
 
 # Parse arguments
 description_text = "process command-line flags for sync"
@@ -145,6 +148,13 @@ parser.add_argument(
 
 parser.add_argument(
     "-v", "--version", action="version", version=f"%(prog)s {__version__}"
+)
+
+parser.add_argument(
+    "-f",
+    "--force",
+    action="store_true",
+    help="force processing of all albums, even if they were processed previously",
 )
 
 
@@ -295,6 +305,13 @@ def process_track(track_id, artist_name, album, track_name):
 
 
 def process_album(album_id):
+    if not args.force:
+        global processed_albums
+
+        if album_id in processed_albums:
+            logging.info(f"    {LIGHT_CYAN}Skipping already processed album{RESET}")
+            return
+
     nav_url = f"{NAV_BASE_URL}/rest/getAlbum?id={album_id}&u={NAV_USER}&p=enc:{HEX_ENCODED_PASS}&v=1.12.0&c=spotify_sync&f=json"
     response = requests.get(nav_url).json()
 
@@ -307,6 +324,10 @@ def process_album(album_id):
 
     for track in tracks:
         process_track(*track)
+
+    processed_albums.add(album_id)
+    with open(PROCESSED_ALBUMS_FILE, "a") as file:
+        file.write(f"{album_id}\n")
 
 
 def process_artist(artist_id):
@@ -359,6 +380,11 @@ def fetch_data(url):
         )
         sys.exit(1)
 
+
+# Load processed albums
+if os.path.exists(PROCESSED_ALBUMS_FILE) and not args.force:
+    with open(PROCESSED_ALBUMS_FILE, "r") as file:
+        processed_albums = set(file.read().splitlines())
 
 try:
     validate_url(NAV_BASE_URL)
@@ -426,14 +452,26 @@ else:
 
 # Display the results
 logging.info("")
-MATCH_PERCENTAGE = (FOUND_AND_UPDATED / TOTAL_TRACKS) * 100 if TOTAL_TRACKS != 0 else 0
-FORMATTED_MATCH_PERCENTAGE = round(MATCH_PERCENTAGE, 2)  # Rounding to 2 decimal places
+
+# Check if TOTAL_TRACKS is zero to avoid division by zero error
+if TOTAL_TRACKS > 0:
+    MATCH_PERCENTAGE = (FOUND_AND_UPDATED / TOTAL_TRACKS) * 100
+else:
+    MATCH_PERCENTAGE = 0
+
+FORMATTED_MATCH_PERCENTAGE = round(MATCH_PERCENTAGE, 2)
 TOTAL_BLOCKS = 20
 
 color_found = LIGHT_GREEN if FOUND_AND_UPDATED == TOTAL_TRACKS else LIGHT_YELLOW
 color_found_white = LIGHT_GREEN if FOUND_AND_UPDATED == TOTAL_TRACKS else BOLD
 color_not_found = LIGHT_GREEN if NOT_FOUND == 0 else LIGHT_RED
-blocks_found = "█" * round(FOUND_AND_UPDATED * TOTAL_BLOCKS / TOTAL_TRACKS)
+
+# Adjust the progress bar calculation
+blocks_found = (
+    "█" * round(FOUND_AND_UPDATED * TOTAL_BLOCKS / TOTAL_TRACKS)
+    if TOTAL_TRACKS > 0
+    else ""
+)
 blocks_not_found = "█" * (TOTAL_BLOCKS - len(blocks_found))
 full_blocks_found = f"{color_found_white}{blocks_found}{RESET}"
 full_blocks_not_found = f"{color_not_found}{blocks_not_found}{RESET}"
@@ -453,7 +491,6 @@ if seconds or not parts:  # Show seconds if it's the only value, even if it's 0
 
 formatted_elapsed_time = " ".join(parts)
 
-# logging.info(f"Processing completed in {int(hours):02}:{int(minutes):02}:{int(seconds):02}")
 logging.info(
     f"Tracks: {LIGHT_PURPLE}{TOTAL_TRACKS}{RESET} | Found: {color_found}{FOUND_AND_UPDATED}{RESET} |{full_blocks_found}{full_blocks_not_found}| Not Found: {color_not_found}{NOT_FOUND}{RESET} | Match: {color_found}{FORMATTED_MATCH_PERCENTAGE}%{RESET} | Time: {LIGHT_PURPLE}{formatted_elapsed_time}{RESET}"
 )
