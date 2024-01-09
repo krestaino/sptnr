@@ -13,7 +13,7 @@ services:
     # entrypoint: ["python", "sptnr.py"]
     
     # Uncomment the next line to start the web server
-    # entrypoint: ["gunicorn", "-b", "0.0.0.0:5000", "web_server:sptnr_web_server"]
+    # entrypoint: ["gunicorn", "-b", "0.0.0.0:5000", "server:sptnr"]
 
     environment:
       - NAV_BASE_URL=your_navidrome_server_url
