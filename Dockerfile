@@ -10,11 +10,8 @@ COPY . .
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 5000 for the Flask app
-EXPOSE 5000
+# Expose port 3333 for the Flask app
+EXPOSE 3333
 
 # Set the entrypoint to Python
-ENTRYPOINT ["python"]
-
-# Leave CMD empty
-CMD []
+ENTRYPOINT ["python", "sptnr.py"]

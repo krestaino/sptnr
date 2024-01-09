@@ -45,7 +45,7 @@ LOG_DIR = "data/logs"
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
-LOGFILE = os.path.join(LOG_DIR, f"spotify-popularity_{int(time.time())}.log")
+LOGFILE = os.path.join(LOG_DIR, f"sptnr_{int(time.time())}.log")
 
 
 class NoColorFormatter(logging.Formatter):

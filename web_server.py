@@ -1,34 +1,35 @@
 from flask import Flask, request, jsonify
-import json
 import subprocess
 import threading
 import os
 from dotenv import load_dotenv
-import datetime
+import functools
 
 load_dotenv()
 
 sptnr_web_server = Flask(__name__)
-API_KEY = os.getenv("WEB_API_KEY")
+WEB_API_KEY = os.getenv("WEB_API_KEY")
+ENABLE_WEB_API_KEY = os.getenv("ENABLE_WEB_API_KEY", "True") == "True"
 LOG_DIR = "data/logs"
+
+
+def api_key_required(f):
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        if ENABLE_WEB_API_KEY and request.args.get("api_key") != WEB_API_KEY:
+            return jsonify({"error": "Unauthorized"}), 401
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 def run_script(cmd):
     subprocess.run(cmd)
 
 
-def log_post_data(data):
-    timestamp = datetime.datetime.now().isoformat()
-    log_filename = os.path.join(LOG_DIR, f"log_{timestamp}.txt")
-    with open(log_filename, "w") as log_file:
-        json.dump(data, log_file, indent=4)
-
-
 @sptnr_web_server.route("/process", methods=["GET", "POST"])
+@api_key_required
 def process_request():
-    if request.args.get("api_key") != API_KEY:
-        return jsonify({"error": "Unauthorized"}), 401
-
     cmd = ["python3", "sptnr.py"]
     if request.args.get("preview", "") == "true":
         cmd.append("--preview")
@@ -54,6 +55,7 @@ def process_request():
 
 
 @sptnr_web_server.route("/logs")
+@api_key_required
 def list_logs():
     try:
         logs = os.listdir(LOG_DIR)
@@ -66,6 +68,7 @@ def list_logs():
 
 
 @sptnr_web_server.route("/logs/<filename>")
+@api_key_required
 def view_log(filename):
     try:
         full_path = os.path.join(LOG_DIR, filename)

@@ -16,8 +16,13 @@ services:
       - SPOTIFY_CLIENT_ID=your_spotify_client_id
       - SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
       - WEB_API_KEY=changeme
+      - ENABLE_WEB_API_KEY=False
     volumes:
       - ./data:/usr/src/app/data
     ports:
       - "3333:3333"
-    command: web_server.py
+    # Uncomment the next line to just run the script
+    # entrypoint: ["python", "sptnr.py"]
+    
+    # Uncomment the next line to start the web server
+    # entrypoint: ["python", "web_server.py"]
