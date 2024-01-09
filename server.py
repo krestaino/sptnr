@@ -7,7 +7,7 @@ import functools
 
 load_dotenv()
 
-sptnr_web_server = Flask(__name__)
+sptnr = Flask(__name__)
 WEB_API_KEY = os.getenv("WEB_API_KEY")
 ENABLE_WEB_API_KEY = os.getenv("ENABLE_WEB_API_KEY", "True") == "True"
 LOG_DIR = "data/logs"
@@ -27,7 +27,7 @@ def run_script(cmd):
     subprocess.run(cmd)
 
 
-@sptnr_web_server.route("/process", methods=["GET", "POST"])
+@sptnr.route("/process", methods=["GET", "POST"])
 @api_key_required
 def process_request():
     cmd = ["python3", "sptnr.py"]
@@ -54,7 +54,7 @@ def process_request():
     return jsonify({"message": "Processing started"})
 
 
-@sptnr_web_server.route("/logs")
+@sptnr.route("/logs")
 @api_key_required
 def list_logs():
     try:
@@ -67,7 +67,7 @@ def list_logs():
         return f"An error occurred: {e}", 500
 
 
-@sptnr_web_server.route("/logs/<filename>")
+@sptnr.route("/logs/<filename>")
 @api_key_required
 def view_log(filename):
     try:
@@ -86,4 +86,4 @@ def view_log(filename):
 
 
 if __name__ == "__main__":
-    sptnr_web_server.run(debug=False, host="0.0.0.0", port=3333)
+    sptnr.run(debug=False, host="0.0.0.0", port=3333)

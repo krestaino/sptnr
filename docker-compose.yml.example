@@ -9,6 +9,12 @@ services:
     # Uncomment the next line to build the Docker image locally
     # build: .
 
+    # Uncomment the next line to run the script
+    # entrypoint: ["python", "sptnr.py"]
+    
+    # Uncomment the next line to start the web server
+    # entrypoint: ["gunicorn", "-b", "0.0.0.0:5000", "web_server:sptnr_web_server"]
+
     environment:
       - NAV_BASE_URL=your_navidrome_server_url
       - NAV_USER=your_navidrome_username
@@ -20,9 +26,4 @@ services:
     volumes:
       - ./data:/usr/src/app/data
     ports:
-      - "3333:3333"
-    # Uncomment the next line to just run the script
-    # entrypoint: ["python", "sptnr.py"]
-    
-    # Uncomment the next line to start the web server
-    # entrypoint: ["python", "web_server.py"]
+      - "3333:5000"
