@@ -6,14 +6,14 @@ set -e
 # Read version from the VERSION file
 VERSION=$(cat VERSION)
 
-# Build the Docker image with the version tag
-docker build -t krestaino/sptnr:$VERSION .
+# Set up the builder instance (only needs to be done once, so you can comment this out after the first run)
+# docker buildx create --name mybuilder --use
+# docker buildx inspect mybuilder --bootstrap
 
-# Tag the built image as latest
-docker tag krestaino/sptnr:$VERSION krestaino/sptnr:latest
+# Build and push the Docker image for both arm64 and amd64 platforms with the version tag
+docker buildx build --platform linux/arm64,linux/amd64 -t krestaino/sptnr:$VERSION . --push
 
-# Push both tags to the Docker registry
-docker push krestaino/sptnr:$VERSION
-docker push krestaino/sptnr:latest
+# Build and push the 'latest' tag as well
+docker buildx build --platform linux/arm64,linux/amd64 -t krestaino/sptnr:latest . --push
 
 echo "Docker images tagged and pushed: $VERSION and latest"
