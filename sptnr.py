@@ -437,7 +437,7 @@ else:
     logging.info(f"Total artists to process: {LIGHT_GREEN}{total_count}{RESET}")
 
     for index, ARTIST_ENTRY in tqdm(
-        enumerate(data_slice), total=total_count, leave=False
+        enumerate(data_slice), total=total_count, leave=False, unit="artist"
     ):
         ARTIST_ID, ARTIST_NAME = ARTIST_ENTRY
 
